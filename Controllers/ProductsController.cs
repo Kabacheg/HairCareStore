@@ -65,9 +65,9 @@ public class ProductsController : ControllerBase
         catch(ValidationException validationException) {
             return base.BadRequest(validationException.validationResponseItems);
         }
-        // catch(Exception) {
-        //     return base.StatusCode((int)HttpStatusCode.InternalServerError);
-        // }
+        catch(Exception) {
+            return base.StatusCode((int)HttpStatusCode.InternalServerError);
+        }
     }
 
 
