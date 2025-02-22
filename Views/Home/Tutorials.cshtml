@@ -1,0 +1,227 @@
+@inject ITutorialsRepository TutorialJSONRepository
+
+@{
+    var tutorials = TutorialJSONRepository.GetAllTutorials();
+}
+
+<div class="container">
+    <div class="mgb-40 padb-30 auto-invert line-b-4 align-center">
+        <h1 class="font-cond-b fg-text-d lts-md fs-300 fs-300-xs no-mg" contenteditable="false">Tutorials</h1>
+    </div>
+@if(tutorials == null || tutorials.Any() == false)
+{    
+    <h3>...</h3>
+}
+else{
+    <ul class="hash-list cols-3 cols-1-xs pad-30-all align-center text-sm">
+        @foreach(var tutorial in tutorials){
+            <li id="row">
+                <h5 class="font-cond mgb-5 fg-text-d fs-130" contenteditable="false"><a href="/Tutorials/@tutorial.Id">@tutorial.Topic</a></h5>
+                <p class="fs-110 font-cond-l" contenteditable="false">@tutorial.Instruction</p>
+                <button class="btn btn-danger" onclick="deleteProduct(@tutorial.Id)">Delete</button>
+            </li>
+        }
+  </ul>
+}
+    <div class="container text-center mt-5">
+        <p class="add-text"><span id="openModal">Add</span> tutorial</p>
+    </div>
+
+    <div id="textModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h3>Add New Tutorial</h3>
+
+            <form id="addTextForm" method="post" action="/Tutorials/CreateTutorial">
+                <label for="topic">Topic:</label>
+                <input type="text" id="topic" name="topic" placeholder="Enter topic..." required>
+                
+                <label for="instruction">Instruction:</label>
+                <textarea id="text" name="instruction" placeholder="Enter your instruction..." required></textarea>
+
+                <button type="submit" class="submit-btn">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+h3{
+    text-align: center;
+}
+
+body {
+    margin-top: 20px;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.hash-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+}
+
+.hash-list > li {
+    float: none;
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    max-width: 80%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;/
+    white-space: pre-wrap;
+    word-break: break-word;
+    display: block;
+}
+
+@@ media (min-width: 768px) {
+    .hash-list.cols-3 {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .hash-list.cols-3 > li {
+        width: calc(33.3333% - 20px);
+    }
+}
+
+.pad-30, .pad-30-all > * {
+    padding: 30px;
+}
+
+.mgb-20, .mgb-20-all > * {
+    margin-bottom: 20px;
+}
+
+.wpx-100, .wpx-100-after:after {
+    width: 100px;
+}
+
+.padb-30, .padb-30-all > * {
+    padding-bottom: 30px;
+}
+
+.mgb-40, .mgb-40-all > * {
+    margin-bottom: 40px;
+}
+
+[class*="line-b"] {
+    position: relative;
+    padding-bottom: 20px;
+    border-color: #E6AF2A;
+}
+
+.fg-text-d, .fg-hov-text-d:hover, .fg-active-text-d.active {
+    color: #222;
+}
+
+.font-cond-b {
+    font-weight: 700 !important;
+}
+
+
+.add-text span {
+    color: green;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background: white;
+    width: 600px;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: left;
+}
+
+.close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+label {
+    font-weight: bold;
+}
+
+input, textarea {
+    width: 100%;
+    margin: 10px 0;
+    padding: 8px;
+}
+
+.submit-btn {
+    background: green;
+    color: white;
+    padding: 10px;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.submit-btn:hover {
+    background: darkgreen;
+}
+
+</style>
+
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        $("#openModal").click(function () {
+            $("#textModal").fadeIn();
+        });
+
+        $("#closeModal").click(function () {
+            $("#textModal").fadeOut();
+        });
+
+        $(window).click(function (e) {
+            if ($(e.target).is("#textModal")) {
+                $("#textModal").fadeOut();
+            }
+        });
+    });
+
+    async function deleteProduct(tutorialId) {
+    try {
+            const response = await fetch(`http://localhost:7777/Tutorials/DeleteTutorial/${tutorialId}`, {
+                method: 'DELETE'
+            });
+    
+            if (response.ok) {
+                document.getElementById('row').remove();
+            } else {
+                console.error(response);
+            }
+        } catch (error) {
+            console.error("Request failed", error);
+        }
+    }
+
+</script>
