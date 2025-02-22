@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Hair_Care_Store</RootNamespace>
   </PropertyGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.35" />

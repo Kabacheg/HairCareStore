@@ -6,7 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 namespace Hair_Care_Store.Repositories;
 public class ProductJSONRepository : IProductRepository
 {
-    private readonly string filePath = "C:\\Users\\User\\Desktop\\ASP.NET Project\\Hair Care Store\\products.json";
+    private readonly string filePath = "C:\\Users\\User\\Desktop\\New folder\\Hair Care Store\\products.json";
+    private static int currentId = 1;
 
     public ProductJSONRepository()
     {
@@ -21,6 +22,8 @@ public class ProductJSONRepository : IProductRepository
         var products = new List<Product>();
         if(GetAllProducts() != null)
             products = GetAllProducts().ToList();
+        product.Id = currentId;
+        currentId += 1;
         products.Add(product);
         var SerializedProducts = JsonSerializer.Serialize(products);
         File.WriteAllText(filePath, SerializedProducts);

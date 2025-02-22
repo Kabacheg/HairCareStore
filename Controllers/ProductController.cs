@@ -8,10 +8,10 @@ namespace Hair_Care_Store.Controllers;
 [Route("[controller]/")]
 [ProducesResponseType(400, Type = typeof(List<ValidationResponse>))]
 [ProducesResponseType(500)]
-public class ProductsController : ControllerBase
+public class ProductController : Controller
 {
     private readonly IProductRepository productRepository;
-    public ProductsController(IProductRepository productRepository)
+    public ProductController(IProductRepository productRepository)
     {
         this.productRepository = productRepository;
     }
@@ -20,7 +20,7 @@ public class ProductsController : ControllerBase
     [HttpPost]
     [Route("[action]")]
     [ProducesResponseType(200)]
-    public ActionResult CreateProduct([FromBody]Product product) {
+    public ActionResult CreateProduct([FromForm]Product product) {
         try {
             var validationException = new ValidationException();
             if(string.IsNullOrWhiteSpace(product.Name)) {
@@ -33,7 +33,7 @@ public class ProductsController : ControllerBase
                 throw validationException;
             }
             productRepository.AddProduct(product);
-            return base.Ok();
+            return base.Redirect("/");
         }
         catch(ValidationException validationException) {
             return base.BadRequest(validationException.validationResponseItems);
@@ -41,6 +41,8 @@ public class ProductsController : ControllerBase
         catch(Exception) {
             return base.StatusCode((int)HttpStatusCode.InternalServerError);
         }
+
+        
     }
 
 
@@ -72,9 +74,9 @@ public class ProductsController : ControllerBase
 
 
     [HttpDelete]
-    [Route("[action]")]
+    [Route("[action]/{id:int}")]
     [ProducesResponseType(200)]
-    public ActionResult DeleteProduct([FromBody]int id) {
+    public ActionResult DeleteProduct(int id) {
         var products = productRepository.GetAllProducts();
         var foundProduct = products.FirstOrDefault(p => p.Id == id);
         if(foundProduct == null) {
@@ -86,14 +88,24 @@ public class ProductsController : ControllerBase
 
 
     [HttpGet]
-    [Route("{id}")]
     [ProducesResponseType(200, Type = typeof(Product))]
-    public ActionResult<Product> GetProducts(int id) {
+    public ActionResult<Product> GetProducts() {
         var products = productRepository.GetAllProducts();
         if(products == null) {
             return base.NotFound();
         }
         return base.Ok(products);
+    }
+
+    [HttpGet]
+    [Route("{id:int}")]
+    [ProducesResponseType(200, Type = typeof(Product))]
+    public ActionResult<Product> GetProductsById(int id) {
+        var productToShow = productRepository.GetAllProducts().First(p => p.Id == id);
+        if(productToShow == null) {
+            return base.NotFound();
+        }
+        return base.View(viewName: "ProductInfo", model: productToShow);
     }
 }
 
