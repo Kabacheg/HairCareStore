@@ -7,4 +7,25 @@ public class ValidationException : Exception
     {
         validationResponseItems  = new List<ValidationResponse>();
     }
+
+    public string CombineExceptionMessages(){
+        string message = "";
+        foreach (var item in validationResponseItems)
+        {
+            message += item.Message;
+            message += "|";
+        }
+        return message.TrimEnd('|');
+    }
+
+    public string CombineExceptionProperties(){
+        string properties = "";
+        foreach (var item in validationResponseItems)
+        {
+            properties += item.Property;
+            properties += "|";
+            
+        }
+        return properties.TrimEnd('|');
+    }
 }

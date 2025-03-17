@@ -5,79 +5,62 @@ using Hair_Care_Store.Repositories.Base;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using ValidationException = Hair_Care_Store.Excpetions.ValidationException;
+using HairCareStore.Services.Base;
+using Hair_Care_Store.Responses;
 namespace Hair_Care_Store.Controllers;
 
 [Route("[controller]/")]
-[ProducesResponseType(400, Type = typeof(List<ValidationResponse>))]
-[ProducesResponseType(500)]
+[ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(NotFoundResponse))]
+[ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(InternalServerErrorResponse))]
+[ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(BadRequestResponse))]
+[ProducesResponseType(200)]
 public class TutorialsController : Controller
 {
     private readonly ITutorialsRepository tutorialsRepository;
-    public TutorialsController(ITutorialsRepository tutorialsRepository)
+    private readonly IHttpLogger logger;
+    public TutorialsController(ITutorialsRepository productRepository, IHttpLogger logger)
     {
-        this.tutorialsRepository = tutorialsRepository;
+        this.tutorialsRepository= productRepository;
+        this.logger = logger;
     }
 
-    [HttpPost]
-    [Route("[action]")]
-    [ProducesResponseType(200)]
+    [HttpPost("[action]")]
     public ActionResult CreateTutorial([FromForm]Tutorial tutorial) {
-        try {
-            var validationException = new ValidationException();
-            if(string.IsNullOrWhiteSpace(tutorial.Topic)) {
-                validationException.validationResponseItems.Add(new ValidationResponse(nameof(tutorial.Topic), $"{nameof(tutorial.Topic)} can not be empty"));
-            }
-            if(string.IsNullOrWhiteSpace(tutorial.Instruction)) {
-                validationException.validationResponseItems.Add(new ValidationResponse(nameof(tutorial.Instruction), $"{nameof(tutorial.Instruction)}  can not be empty"));
-            }
-            if(validationException.validationResponseItems.Any()) {
-                throw validationException;
-            }
-            
-            tutorialsRepository.AddTutorial(tutorial);
-            return base.Redirect("/Home/Tutorials/");
+        var validationException = new ValidationException();
+        if(string.IsNullOrWhiteSpace(tutorial.Topic)) {
+            validationException.validationResponseItems.Add(new ValidationResponse(nameof(tutorial.Topic), $"{nameof(tutorial.Topic)} can not be empty"));
         }
-        catch(ValidationException validationException) {
-            return base.BadRequest(validationException.validationResponseItems);
+        if(string.IsNullOrWhiteSpace(tutorial.Instruction)) {
+            validationException.validationResponseItems.Add(new ValidationResponse(nameof(tutorial.Instruction), $"{nameof(tutorial.Instruction)}  can not be empty"));
         }
-        catch(Exception) {
-            return base.StatusCode((int)HttpStatusCode.InternalServerError);
+        if(validationException.validationResponseItems.Any()) {
+            throw validationException;
         }
-
+        tutorialsRepository.AddTutorial(tutorial);
+        return base.Redirect("/Home/Tutorials/");
         
     }
 
 
-    [HttpPut]
-    [Route("[action]")]
-    [ProducesResponseType(200)]
+    [HttpPut("[action]")]
     public ActionResult UpdateTutorial([FromBody]Tutorial tutorial) {
-        try {
-            var validationException = new ValidationException();
-            if(string.IsNullOrWhiteSpace(tutorial.Topic)) {
-                validationException.validationResponseItems.Add(new ValidationResponse(nameof(tutorial.Topic), $"{nameof(tutorial.Topic)} can not be empty"));
-            }
-            if(string.IsNullOrWhiteSpace(tutorial.Instruction)) {
-                validationException.validationResponseItems.Add(new ValidationResponse(nameof(tutorial.Instruction), $"{nameof(tutorial.Instruction)}  can not be empty"));
-            }
-            if(validationException.validationResponseItems.Any()) {
-                throw validationException;
-            }
-            tutorialsRepository.UpdateTutorial(tutorial);
-            return base.Ok();
+        var validationException = new ValidationException();
+        if(string.IsNullOrWhiteSpace(tutorial.Topic)) {
+            validationException.validationResponseItems.Add(new ValidationResponse(nameof(tutorial.Topic), $"{nameof(tutorial.Topic)} can not be empty"));
         }
-        catch(ValidationException validationException) {
-            return base.BadRequest(validationException.validationResponseItems);   
+        if(string.IsNullOrWhiteSpace(tutorial.Instruction)) {
+            validationException.validationResponseItems.Add(new ValidationResponse(nameof(tutorial.Instruction), $"{nameof(tutorial.Instruction)}  can not be empty"));
         }
-        catch(Exception) {
-            return base.StatusCode((int)HttpStatusCode.InternalServerError);
+        if(validationException.validationResponseItems.Any()) {
+            throw validationException;
         }
+        tutorialsRepository.UpdateTutorial(tutorial);
+        return base.Ok();
+
     }
 
 
-    [HttpDelete]
-    [Route("[action]/{id:int}")]
-    [ProducesResponseType(200)]
+    [HttpDelete("[action]/{id:int}")]
     public ActionResult DeleteTutorial(int id) {
         var tutorials = tutorialsRepository.GetAllTutorials();
         var foundTutorial = tutorials.FirstOrDefault(t => t.Id == id);
@@ -85,13 +68,13 @@ public class TutorialsController : Controller
             return base.NotFound();
         }
         tutorialsRepository.DeleteTutorial(id);
-        return base.Ok(tutorials);
+        return base.Ok();
     }
 
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(Tutorial))]
-    public ActionResult<Tutorial> GetTutorials() {
+    public ActionResult<IEnumerable<Tutorial>> GetTutorials() {
         var tutorials = tutorialsRepository.GetAllTutorials();
         if(tutorials == null) {
             return base.NotFound();
@@ -99,8 +82,7 @@ public class TutorialsController : Controller
         return base.Ok(tutorials);
     }
 
-    [HttpGet]
-    [Route("{id:int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(200, Type = typeof(Tutorial))]
     public ActionResult<Product> GetProductsById(int id) {
         var tutorialToShow = tutorialsRepository.GetAllTutorials().First(t => t.Id == id);
