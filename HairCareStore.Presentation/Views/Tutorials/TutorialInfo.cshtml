@@ -1,0 +1,64 @@
+@model Tutorial
+
+@if (Model != null)
+{
+    <form id="myForm" class="row g-3">
+        <div asp-validation-summary="All"></div>
+        <div class="mb-1">
+            <label asp-for="Topic" for="topic" class="form-label">Topic</label>
+            <input asp-for="Topic" type="text" class="form-control" id="topic" name="topic" value="@Model.Topic">
+        </div>
+        <div class="mb-1">
+            <label asp-for="Instruction" for="instruction" class="form-label">Instruction</label>
+            <input asp-for="Instruction" type="text" class="form-control" id="instruction" name="instruction" value="@Model.Instruction">
+        </div>
+
+        <button class="btn btn-primary">Change</button>
+    </form>
+}
+else
+{
+    <h1 class="danger">Not tutorial like this!</h1>
+}
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
+
+<script>
+    document.getElementById('myForm')
+        .addEventListener('submit', 
+            async function (event) {
+                event.preventDefault();
+
+                const topic = document.getElementById('topic').value;
+                const instruction = document.getElementById('instruction').value;
+
+
+                const data = {
+                    id: @Model!.Id,
+                    topic: topic,
+                    instruction: instruction,
+                };
+
+                try {
+                    const response = await fetch('http://localhost:7777/Tutorials/UpdateTutorial', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        window.location.replace('http://localhost:7777/Home/Tutorials');
+                    } 
+                    else {
+                        console.error(response);
+                    }
+                } catch (error) {
+                    console.error('Request failed', error);
+                }
+            });
+</script>
