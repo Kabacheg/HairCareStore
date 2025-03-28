@@ -48,7 +48,7 @@ else {
                     <th><a href="/Product/@product.Id">@product.Id</a></th>
                     <td>@product.Name</td>
                     <td>@product.Description</td>
-                    <td>@product.Price</td>
+                    <td>@Math.Round(product.Price, 2)</td>
                     <td><button class="btn btn-danger" onclick="deleteProduct(@product.Id)">Delete</button></td>
                 </tr>
             }

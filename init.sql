@@ -30,5 +30,14 @@ CREATE TABLE Products (
     [Price] money NOT NULL
 );
 
+CREATE TABLE Users (
+    Id INT PRIMARY KEY Identity,
+    Name VARCHAR(255) NOT NULL,
+    Surname VARCHAR(255) NOT NULL,
+    Mail VARCHAR(255) NOT NULL UNIQUE,
+    Password VARCHAR(255) NOT NULL
+);
+
+
 
 select * from HttpLog

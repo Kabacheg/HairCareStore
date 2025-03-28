@@ -1,0 +1,41 @@
+@model HairCareStore.Core.Dtos.UserDetailsForRegistration
+
+<h2 class="mb-4">User Registration</h2>
+
+<form asp-action="Registration" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    
+    <div class="mb-3">
+        <label asp-for="Surname" class="form-label">Surname</label>
+        <input asp-for="Surname" class="form-control" required />
+        <span asp-validation-for="Surname" class="text-danger"></span>
+    </div>
+    
+    <div class="mb-3">
+        <label asp-for="Mail" class="form-label">Email</label>
+        <input asp-for="Mail" type="email" class="form-control" required />
+        <span asp-validation-for="Mail" class="text-danger"></span>
+    </div>
+    
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label">Password</label>
+        <input asp-for="Password" type="password" class="form-control" required />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="UserAvatar">Avatar</label>
+        <input asp-for="UserAvatar" type="file" class="form-control" required />
+        <span asp-validation-for="UserAvatar" class="text-danger"></span>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
