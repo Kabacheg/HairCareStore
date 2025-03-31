@@ -1,0 +1,65 @@
+@model Product?
+
+@if (Model != null)
+{
+    <form id="myForm" class="row g-3">
+        <div class="mb-1">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="@Model.Name">
+        </div>
+        <div class="mb-1">
+            <label for="surname" class="form-label">Surname</label>
+            <input type="text" class="form-control" id="description" name="description" value="@Model.Description">
+        </div>
+        <div class="mb-1">
+            <label for="price" class="form-label">Price</label>
+            <input type="text" class="form-control" id="price" name="price" value="@Model.Price">
+        </div>
+
+        <button class="btn btn-primary">Change</button>
+    </form>
+}
+else
+{
+    <h1 class="danger">Not product like this!</h1>
+}
+
+<script>
+    document.getElementById('myForm')
+        .addEventListener('submit', 
+            async function (event) {
+                event.preventDefault();
+
+                const name = document.getElementById('name').value;
+                const description = document.getElementById('description').value;
+                const price = document.getElementById('price').value;
+
+                const data = {
+                    id: @Model!.Id,
+                    name: name,
+                    description: description,
+                    price: price
+                };
+
+    
+
+                try {
+                    const response = await fetch('http://localhost:7777/Product/UpdateProduct', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        window.location.replace('http://localhost:7777');
+                    } 
+                    else {
+                        console.error(response);
+                    }
+                } catch (error) {
+                    console.error('Request failed', error);
+                }
+            });
+</script>

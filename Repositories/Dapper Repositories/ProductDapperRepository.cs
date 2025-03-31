@@ -21,6 +21,7 @@ public class ProductDapperRepository : IProductRepository
                     Description = product.Description,
                     Price = product.Price
                 });
+        connection.Close();
 
     }
 
@@ -34,6 +35,7 @@ public class ProductDapperRepository : IProductRepository
                 {   
                     Id = idToDelete,
                 });
+        connection.Close();
 
     }
 
@@ -41,7 +43,7 @@ public class ProductDapperRepository : IProductRepository
     {
         connection.Open();
         var products = connection.Query<Product>("select * from Products");
-
+        connection.Close();
         return products;
     }
 
@@ -63,5 +65,6 @@ public class ProductDapperRepository : IProductRepository
                         Price = product.Price
                     });
 
+            connection.Close();
     }
 }

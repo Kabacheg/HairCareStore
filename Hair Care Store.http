@@ -1,6 +1,0 @@
-@Hair_Care_Store_HostAddress = http://localhost:5168
-
-GET {{Hair_Care_Store_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
