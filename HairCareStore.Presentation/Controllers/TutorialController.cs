@@ -7,6 +7,7 @@ using ValidationException = Hair_Care_Store.Core.Excpetions.ValidationException;
 using HairCareStore.Core.Services;
 using Hair_Care_Store.Core.Responses;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 namespace Hair_Care_Store.Presentation.Controllers;
 
 [Route("[controller]/")]
@@ -14,6 +15,7 @@ namespace Hair_Care_Store.Presentation.Controllers;
 [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(InternalServerErrorResponse))]
 [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(BadRequestResponse))]
 [ProducesResponseType(200)]
+[Authorize(Roles = "Admin")]
 public class TutorialsController : Controller
 {
     private readonly ITutorialsRepository tutorialsRepository;
@@ -42,7 +44,7 @@ public class TutorialsController : Controller
             throw validationException;
         }
         tutorialsRepository.AddTutorial(tutorial);
-        return base.Redirect("/Home/Tutorials/");
+        return base.Redirect("/Tutorials");
         
     }
 
@@ -80,7 +82,7 @@ public class TutorialsController : Controller
     }
 
 
-    [HttpGet]
+    [HttpGet("[action]")]
     [ProducesResponseType(200, Type = typeof(Tutorial))]
     public ActionResult<IEnumerable<Tutorial>> GetTutorials() {
         var tutorials = tutorialsRepository.GetAllTutorials();

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Security.Claims;
 using Hair_Care_Store.Core.Models;
 using Hair_Care_Store.Core.Repositories;
 using Hair_Care_Store.Core.Responses;
@@ -7,6 +8,9 @@ using HairCareStore.Core.Dtos;
 using HairCareStore.Core.Models;
 using HairCareStore.Core.Services;
 using HairCareStore.Core.Validators;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -40,6 +44,7 @@ public class IdentityController : Controller
     [HttpGet("[action]")]
     public ActionResult Registration()
     {
+        ViewBag.ShowMenu = false;
         return base.View();
     }
 
@@ -63,7 +68,6 @@ public class IdentityController : Controller
         var extension = new FileInfo(UserAvatar.FileName).Extension[1..];
         var userMailForPath = newUser.Mail;
         string filepath = $"wwwroot/UserAvatars/{userMailForPath}.{extension}";
-        TempData["AvatarFilePath"] = filepath;
 
         using var avatarFileStream = System.IO.File.Create(filepath);
         await UserAvatar.CopyToAsync(avatarFileStream);
@@ -72,47 +76,53 @@ public class IdentityController : Controller
         return base.RedirectToAction(nameof(Login));
     }
 
-    [HttpGet]
+    [HttpGet("[action]")]
     public ActionResult Login()
-    {
+    {   
+        ViewBag.ShowMenu = false;
         return base.View();
     }
 
-    [HttpGet("[action]")]
-    public ActionResult UserPage()
-    {
-        return base.View();
-    }
-
-    [HttpPost]
-    public ActionResult Login([FromForm] UserDetailsForLoginDto dto)
-    {
-        //TODO in FINAL:
-        //1.Proper design for login and registration
-        //2.add store for normal users
-
-        var foundUser = userRepository.GetAllUsers().FirstOrDefault(u => u.Mail == dto.Mail && u.Password == dto.Password);
-
-        if (foundUser == null){
-            return base.RedirectToAction(nameof(Login));
-        }
-        var idHash = dataProtector.Protect(foundUser.Id.ToString());
-        base.HttpContext.Response.Cookies.Append("Identity", idHash);
-        ViewBag.AvatarPath = TempData["AvatarFilePath"];
-            
-        return base.View(viewName: nameof(UserPage), model: foundUser);
-    }
-
-    [HttpGet("[action]")]
-
-    public ActionResult LogOut(){
-        base.HttpContext.Response.Cookies.Delete("Identity");
-
-        return base.RedirectToAction(controllerName: "Home", actionName: "Index");
-    }
 
     [HttpPost("[action]")]
-    public async Task<ActionResult> UploadProfilePicture([FromForm]  IFormFile profilePicture){
-        return base.RedirectToAction(nameof(Login));
+    public async  Task<ActionResult> Login([FromForm] UserDetailsForLoginDto dto)
+    {
+
+
+        var foundUser = userRepository.GetAllUsers().FirstOrDefault(u => u.Mail == dto.Mail && u.Password == dto.Password) ;
+
+        if (foundUser == null){
+            ViewData["LoginError"] = "No account found with these credentials.";
+            return View();
+        }
+        var isUser = false;
+        var claims = new List<Claim>() {
+           new Claim(ClaimTypes.NameIdentifier, foundUser.Id.ToString()),
+           new Claim(ClaimTypes.Name, foundUser.Name),
+           new Claim(ClaimTypes.Surname, foundUser.Surname),
+           new Claim(ClaimTypes.Email, foundUser.Mail),
+           new Claim(ClaimTypes.Role, isUser ? "User" : "Admin")
+        };
+
+        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+        
+        await base.HttpContext.SignInAsync(
+           scheme: CookieAuthenticationDefaults.AuthenticationScheme, 
+           principal: claimsPrincipal);
+
+        if(isUser == true)
+            return base.Redirect("/ProductsStore");
+        else
+            return base.Redirect("/Products");
+    }
+
+    [HttpGet("[action]")]
+    [Authorize]
+
+    public async Task<ActionResult> LogOut(){
+        await base.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return base.RedirectToAction(controllerName: "Home", actionName: "Index");
     }
 }

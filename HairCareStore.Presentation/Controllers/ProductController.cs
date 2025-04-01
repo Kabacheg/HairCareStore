@@ -8,6 +8,8 @@ using Hair_Care_Store.Core.Responses;
 using FluentValidation;
 using System.Threading.Tasks;
 using ValidationException = Hair_Care_Store.Core.Excpetions.ValidationException;
+using HairCareStore.Core.Dtos;
+using Microsoft.AspNetCore.Authorization;
 namespace Hair_Care_Store.Presentation.Controllers;
 
 [Route("[controller]/")]
@@ -15,6 +17,7 @@ namespace Hair_Care_Store.Presentation.Controllers;
 [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(InternalServerErrorResponse))]
 [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(BadRequestResponse))]
 [ProducesResponseType(200)]
+[Authorize(Roles = "Admin")]
 public class ProductController : Controller
 {
     private readonly IProductRepository productRepository;
@@ -30,7 +33,14 @@ public class ProductController : Controller
 
 
     [HttpPost("[action]")]
-    public async Task<ActionResult> CreateProduct([FromForm]Product product) {
+
+    public async Task<ActionResult> CreateProduct([FromForm]ProductDetailsForCreating productDto) {
+
+        var product = new Product{
+            Name = productDto.Name,
+            Description = productDto.Description,
+            Price = productDto.Price
+        };
 
         var validationResult = await this.productValidator.ValidateAsync(product);
 
@@ -46,7 +56,20 @@ public class ProductController : Controller
             throw validationException;
         }
         productRepository.AddProduct(product);
-        return base.Redirect("/");
+
+        if (productDto.ProductPicture == null)
+        {
+            throw new Exception("Product picture is required.");
+        }
+
+        var idForPictureName = productRepository.GetAllProducts().Last().Id;
+        var productPicture = productDto.ProductPicture;
+        var extension = new FileInfo(productPicture.FileName).Extension[1..];
+        string filepath = $"wwwroot/ProductPictures/{idForPictureName}.{extension}";
+
+        using var productFileStream = System.IO.File.Create(filepath);
+        await productPicture.CopyToAsync(productFileStream);
+        return base.Redirect("/Products");
     }
 
 

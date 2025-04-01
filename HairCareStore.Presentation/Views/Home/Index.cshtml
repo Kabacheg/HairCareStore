@@ -1,80 +1,26 @@
-﻿@inject IProductRepository ProductDapperRepository
-@model Product
+@model dynamic
 
 @{
-    var products = ProductDapperRepository.GetAllProducts();
+    ViewData["Title"] = "Welcome";
 }
 
-<h2>Add new product</h2>
-
-<form class="row g-3" method="post" action="Product/CreateProduct">
-    <div asp-validation-summary="All"></div>
-    <div class="mb-1">
-        <label asp-for="Name" for="Name" class="form-label">Name</label>
-        <input asp-for="Name" type="text" class="form-control" id="name" name="name">
+<div class="container text-center mt-5" style="margin-top: 100px;">
+    <h1 class="display-4">Welcome to Hair Care Store!</h1>
+    
+    <div class="mt-4">
+        <h2><a asp-controller="Identity" asp-action="Registration" method="get" class="btn btn-primary btn-lg">Register</a></h2>
+        <h2><a asp-controller="Identity" asp-action="Login" method="get" class="btn btn-secondary btn-lg">Login</a></h2>
     </div>
-    <div class="mb-1">
-        <label asp-for="Description" for="Description" class="form-label">Description</label>
-        <input asp-for="Description" type="text" class="form-control" id="Description" name="Description">
-    </div>
-    <div class="mb-1">
-        <label asp-for="Price" for="Price" class="form-label">Price</label>
-        <input asp-for="Price" type="text" class="form-control" id="Price" name="Price">
-    </div>
+</div>
 
-    <button class="btn btn-success">Add</button>
-</form>
-
-<br>
-
-<h2>Product List</h2>
-@if(products == null || products.Any() == false) {
-    <h3>...</h3>
-}
-else {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">Id</th>
-                <th scope="col">Name</th>
-                <th scope="col">Description</th>
-                <th scope="col">Price</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach(var product in products) {
-                <tr id="row">
-                    <th><a href="/Product/@product.Id">@product.Id</a></th>
-                    <td>@product.Name</td>
-                    <td>@product.Description</td>
-                    <td>@Math.Round(product.Price, 2)</td>
-                    <td><button class="btn btn-danger" onclick="deleteProduct(@product.Id)">Delete</button></td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-@section Scripts {
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-}
-
-<script>
-    async function deleteProduct(productId) {
-    try {
-        const response = await fetch(`http://localhost:7777/Product/DeleteProduct/${productId}`, {
-            method: 'DELETE'
-        });
-
-        if (response.ok) {
-            document.getElementById('row').remove();
-        } else {
-            console.error(response);
-        }
-    } catch (error) {
-        console.error("Request failed", error);
+<style>
+    .container {
+        max-width: 700px;
+        margin: auto;
+        padding: 20px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 90px;
     }
-}
-</script>
+</style>

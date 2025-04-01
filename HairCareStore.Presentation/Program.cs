@@ -13,6 +13,7 @@ using HairCareStore.Core.Validators;
 using Microsoft.EntityFrameworkCore;
 using HairCareStore.Infrastructure.Data;
 using HairCareStore.Infrastructure.Repositories.EntityFrameWorkRepositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,17 +43,31 @@ builder.Services.AddDbContext<HairCareStoreDbContext>(options => {
     options.UseSqlServer(connectionString);
 });
 
+builder.Services.AddAuthentication(defaultScheme: CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(
+        authenticationScheme: CookieAuthenticationDefaults.AuthenticationScheme,
+        configureOptions: options =>
+        {
+            options.LoginPath = "/Identity/Login";
+        });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
-app.UseExceptionHandler("/Home/Error");
 
+app.UseExceptionHandler("/Home/Error");
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseMiddleware<LoggingMiddleware>();
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
 
 app.Run();

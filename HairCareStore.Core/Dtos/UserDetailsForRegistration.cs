@@ -5,8 +5,6 @@ namespace HairCareStore.Core.Dtos;
 
 public class UserDetailsForRegistration
 {
-        public int Id { get; set; }
-
         [Required]
         public required string Name { get; set; }
 
