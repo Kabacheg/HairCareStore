@@ -1,0 +1,26 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<div class="container text-center mt-5" style="margin-top: 100px;">
+    <h1 class="display-4">Welcome to Hair Care Store!</h1>
+    
+    <div class="mt-4">
+        <h2><a asp-controller="Identity" asp-action="Registration" method="get" class="btn btn-primary btn-lg">Register</a></h2>
+        <h2><a asp-controller="Identity" asp-action="Login" method="get" class="btn btn-secondary btn-lg">Login</a></h2>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 700px;
+        margin: auto;
+        padding: 20px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 90px;
+    }
+</style>
