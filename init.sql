@@ -23,6 +23,8 @@ CREATE TABLE Tutorials (
     [Instruction] TEXT NOT NULL,
 );
 
+
+
 CREATE TABLE Products (
     Id INT PRIMARY KEY Identity,
     [Name] NVARCHAR(max) NOT NULL,
